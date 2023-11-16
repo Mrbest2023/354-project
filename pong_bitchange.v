@@ -60,12 +60,16 @@ module vga_bitchange(
 	 else
 		rgb = BLUE; // background color
 
+	assign midline = ((hCount >= 10'd490) && (hCount <= 10'd493)) && ((vCount >= 10'd34) && (vCount <= 10'd516)) ? 1 : 0;
+
+	assign leftPaddle = ((hCount >= 10'd150) && (hCount <= 10'd170)) && ((vCount >= ypos1-20) && (vCount <= ypos1+20)) ? 1 : 0;
+
 	always@(posedge clk, posedge rst) 
 	begin
 		if(rst)
 		begin 
 			//rough values for center of screen
-			ypos1<=250;
+			ypos1<=220;
 		end
 		else if (clk) 
 		begin
@@ -87,8 +91,6 @@ module vga_bitchange(
 	
 
 
-	assign midline = ((hCount >= 10'd318) && (hCount <= 10'd322)) && ((vCount >= 10'd34) && (vCount <= 10'd516)) ? 1 : 0;
-
-	assign leftPaddle = ((hCount >= 10'd150) && (hCount <= 10'd170)) && ((vCount >= 10'd220) && (vCount <= 10'd260)) ? 1 : 0;
+	
 	
 endmodule

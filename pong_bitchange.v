@@ -25,11 +25,13 @@ module vga_bitchange(
 	input clk,
 	input bright,
 	input button,
+	//input up1, input down1, input up2, input down2;
 	input [9:0] hCount, vCount,
 	output reg [11:0] rgb,
 	output reg [15:0] score
    );
-	
+	reg [9:0] ypos1, ypos2, xpos1, xpos2;
+
 	parameter BLACK = 12'b0000_0000_0000;
 	parameter WHITE = 12'b1111_1111_1111;
 	parameter RED   = 12'b1111_0000_0000;
@@ -58,6 +60,30 @@ module vga_bitchange(
 	 else
 		rgb = BLUE; // background color
 
+	always@(posedge clk, posedge rst) 
+	begin
+		if(rst)
+		begin 
+			//rough values for center of screen
+			ypos1<=250;
+		end
+		else if (clk) 
+		begin
+			if(button) begin   //paddle 1 movement
+				ypos1<=ypos1+2; //change the amount you increment to make the speed faster 
+			end
+			/*else if(down1) begin
+				ypos1<=ypos1-2;
+			end
+			else if(up2) begin  //padde 2 movement
+				ypos2<=ypos2+2;
+			end
+			else if(down2) begin
+				ypos2<=ypos2-2;
+			end
+			/*
+		end
+	end
 	
 
 

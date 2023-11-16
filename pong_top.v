@@ -24,6 +24,7 @@
 module vga_top(
 	input ClkPort,
 	input BtnC,
+	input BtnD,
 	input BtnU,
 	
 	//VGA signal
@@ -44,9 +45,8 @@ module vga_top(
 	wire [3:0] anode;
 	wire [11:0] rgb;
 	display_controller dc(.clk(ClkPort), .hSync(hSync), .vSync(vSync), .bright(bright), .hCount(hc), .vCount(vc));
-	vga_bitchange vbc(.clk(ClkPort), .bright(bright), .button(BtnU), .hCount(hc), .vCount(vc), .rgb(rgb), .score(score));
-	counter cnt(.clk(ClkPort), .displayNumber(score), .anode(anode), .ssdOut(ssdOut));
-	
+	vga_bitchange vbc(.clk(ClkPort), .bright(bright), .button(BtnU), .down1(BtnD), .rst(BtnC) .hCount(hc), .vCount(vc), .rgb(rgb), .score(score));
+	counter cnt(.clk(ClkPort), .displayNumber(score), .anode(anode), .ssdOut(ssdOut)); 	
 	assign Dp = 1;
 	assign {Ca, Cb, Cc, Cd, Ce, Cf, Cg} = ssdOut[6 : 0];
     assign {An7, An6, An5, An4, An3, An2, An1, An0} = {4'b1111, anode};
@@ -58,5 +58,6 @@ module vga_top(
 	
 	// disable mamory ports
 	assign {MemOE, MemWR, RamCS, QuadSpiFlashCS} = 4'b1111;
+	
 
 endmodule

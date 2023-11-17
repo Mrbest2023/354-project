@@ -43,7 +43,9 @@ module vga_bitchange(
 	wire midline;
 	wire leftPaddle;
 	wire rightPaddle; //wait for when we make player 2 mode
+	reg[9:0] ballxvelocity, ballx, bally;
 	reg reset;
+	wire lp_collision;
 
 
 	initial begin
@@ -67,6 +69,26 @@ module vga_bitchange(
 		rgb = BLUE; // background color
 	
 
+//ball logic
+always@(posedge clk, posedge rst) 
+	begin
+		if(rst)
+		begin 
+			ballx <=463;
+			bally <= 275;
+			ballxvelocity <= -2;
+		end
+		else if (clk) 
+		begin
+		  if (lp_collision)
+		      begin
+		          ballxvelocity <= ballxvelocity * -1;
+		          ballx <= 10'd178;
+		      end
+		  else
+		      ballx <= ballx + ballxvelocity;
+		end
+	end
 		
 	always@(posedge clk, posedge rst) 
 	begin
@@ -108,10 +130,12 @@ module vga_bitchange(
 
 	assign midline = ((hCount >= 10'd460) && (hCount <= 10'd466)) && ((vCount >= 10'd34) && (vCount <= 10'd516)) ? 1 : 0;
 
-	assign ball = ((hCount >= 10'd453) && (hCount <= 10'd473)) && ((vCount >= 10'd265) && (vCount <= 10'd285)) ? 1 : 0;
+	assign ball = ((hCount >= ballx-10) && (hCount <= ballx+10)) && ((vCount >= 10'd265) && (vCount <= 10'd285)) ? 1 : 0;
 
 	assign leftPaddle = ((hCount >= 10'd155) && (hCount <= 10'd165)) && ((vCount >= ypos1-30) && (vCount <= ypos1+30)) ? 1 : 0;
 	
 	assign rightPaddle =((hCount >= 10'd762) && (hCount <= 10'd772)) && ((vCount >= ypos2-30) && (vCount <= ypos2+30)) ? 1 : 0;
+	
+	assign lp_collision = ( (ballx- 10) <= 165) &&  (bally <=ypos1+30) && (bally >= ypos1 - 30) ? 1 : 0 ;
 	
 endmodule

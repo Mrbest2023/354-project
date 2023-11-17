@@ -23,7 +23,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 module vga_top(
 	input ClkPort,
-	input BtnC,
+	input Sw0,
 	input BtnD,
 	input BtnU,
 	input Sw15, Sw14, 
@@ -39,7 +39,7 @@ module vga_top(
 	output MemOE, MemWR, RamCS, QuadSpiFlashCS
 	);
 	wire Reset;
-	assign Reset=BtnC;
+	assign Reset=Sw0;
 	wire bright;
 	wire[9:0] hc, vc;
 	wire[15:0] score;
@@ -59,7 +59,7 @@ module vga_top(
 	assign move_clk=DIV_CLK[19];
 	
 	display_controller dc(.clk(ClkPort), .hSync(hSync), .vSync(vSync), .bright(bright), .hCount(hc), .vCount(vc));
-	vga_bitchange vbc(.clk(move_clk), .bright(bright), .button(BtnU), .down1(BtnD), .up2(Sw15), .down2(Sw14), .rst(BtnC), .hCount(hc), .vCount(vc), .rgb(rgb), .score(score));
+	vga_bitchange vbc(.clk(move_clk), .bright(bright), .button(BtnU), .down1(BtnD), .up2(Sw15), .down2(Sw14), .rst(Sw0), .hCount(hc), .vCount(vc), .rgb(rgb), .score(score));
 	counter cnt(.clk(move_clk), .displayNumber(score), .anode(anode), .ssdOut(ssdOut)); 	
 	
 	

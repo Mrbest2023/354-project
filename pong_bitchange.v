@@ -25,6 +25,7 @@ module vga_bitchange(
 	input clk,
 	input bright,
 	input button,
+	input down1,
 	input [9:0] hCount, vCount,
 	input rst,
 	output reg [11:0] rgb,
@@ -93,6 +94,6 @@ module vga_bitchange(
 
 	assign midline = ((hCount >= 10'd318) && (hCount <= 10'd322)) && ((vCount >= 10'd34) && (vCount <= 10'd516)) ? 1 : 0;
 
-	assign leftPaddle = ((hCount >= 10'd150) && (hCount <= 10'd170)) && ((vCount >= ypos1+40) && (vCount <= ypos1-40)) ? 1 : 0;
+	assign leftPaddle = ((hCount >= 10'd150) && (hCount <= 10'd170)) && ((vCount >= ypos1-20) && (vCount <= ypos1+20)) ? 1 : 0;
 	
 endmodule

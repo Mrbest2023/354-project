@@ -25,13 +25,12 @@ module vga_bitchange(
 	input clk,
 	input bright,
 	input button,
-	//input up1, input down1, input up2, input down2;
 	input [9:0] hCount, vCount,
+	input rst,
 	output reg [11:0] rgb,
 	output reg [15:0] score
    );
 	reg [9:0] ypos1, ypos2, xpos1, xpos2;
-
 	parameter BLACK = 12'b0000_0000_0000;
 	parameter WHITE = 12'b1111_1111_1111;
 	parameter RED   = 12'b1111_0000_0000;
@@ -59,24 +58,23 @@ module vga_bitchange(
 		rgb = WHITE; // white box
 	 else
 		rgb = BLUE; // background color
+	
 
-	assign midline = ((hCount >= 10'd490) && (hCount <= 10'd493)) && ((vCount >= 10'd34) && (vCount <= 10'd516)) ? 1 : 0;
-
-	assign leftPaddle = ((hCount >= 10'd150) && (hCount <= 10'd170)) && ((vCount >= ypos1-20) && (vCount <= ypos1+20)) ? 1 : 0;
-
+		
 	always@(posedge clk, posedge rst) 
 	begin
 		if(rst)
 		begin 
 			//rough values for center of screen
-			ypos1<=220;
+			ypos1<=250;
 		end
 		else if (clk) 
 		begin
 			if(button) begin   //paddle 1 movement
 				ypos1<=ypos1+2; //change the amount you increment to make the speed faster 
 			end
-			/*else if(down1) begin
+			/*
+			else if(down1) begin
 				ypos1<=ypos1-2;
 			end
 			else if(up2) begin  //padde 2 movement
@@ -85,12 +83,16 @@ module vga_bitchange(
 			else if(down2) begin
 				ypos2<=ypos2-2;
 			end
-			/*
+			*/
+       
 		end
-	end
+	end	
+
 	
 
 
-	
+	assign midline = ((hCount >= 10'd318) && (hCount <= 10'd322)) && ((vCount >= 10'd34) && (vCount <= 10'd516)) ? 1 : 0;
+
+	assign leftPaddle = ((hCount >= 10'd150) && (hCount <= 10'd170)) && ((vCount >= ypos1+40) && (vCount <= ypos1-40)) ? 1 : 0;
 	
 endmodule

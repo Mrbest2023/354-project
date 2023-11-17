@@ -59,6 +59,8 @@ module vga_bitchange(
 		rgb = GREEN;
 	 else if (rightPaddle == 1)
 	    rgb = GREEN;
+	else if ( ball == 1)
+		rgb = RED;
 	 else if (midline == 1)
 		rgb = WHITE; // white box
 	 else
@@ -104,11 +106,12 @@ module vga_bitchange(
 	
 	
 
+	assign midline = ((hCount >= 10'd460) && (hCount <= 10'd466)) && ((vCount >= 10'd34) && (vCount <= 10'd516)) ? 1 : 0;
 
-	assign midline = ((hCount >= 10'd318) && (hCount <= 10'd322)) && ((vCount >= 10'd34) && (vCount <= 10'd516)) ? 1 : 0;
+	assign ball = ((hCount >= 10'd453) && (hCount <= 10'd473)) && ((vCount >= 10'd265) && (vCount <= 10'd285)) ? 1 : 0;
 
-	assign leftPaddle = ((hCount >= 10'd150) && (hCount <= 10'd170)) && ((vCount >= ypos1-20) && (vCount <= ypos1+20)) ? 1 : 0;
-
-	assign rightPaddle =((hCount >= 10'd757) && (hCount <= 10'd777)) && ((vCount >= ypos2-20) && (vCount <= ypos2+20)) ? 1 : 0;
+	assign leftPaddle = ((hCount >= 10'd155) && (hCount <= 10'd165)) && ((vCount >= ypos1-30) && (vCount <= ypos1+30)) ? 1 : 0;
+	
+	assign rightPaddle =((hCount >= 10'd762) && (hCount <= 10'd772)) && ((vCount >= ypos2-30) && (vCount <= ypos2+30)) ? 1 : 0;
 	
 endmodule

@@ -72,13 +72,12 @@ module vga_bitchange(
 		else if (clk) 
 		begin
 			if(button) begin   //paddle 1 movement
-				ypos1<=ypos1+2; //change the amount you increment to make the speed faster 
+				ypos1<=ypos1-2; //change the amount you increment to make the speed faster 
 			end
-			/*
 			else if(down1) begin
-				ypos1<=ypos1-2;
+				ypos1<=ypos1+2;
 			end
-			else if(up2) begin  //padde 2 movement
+			/*else if(up2) begin  //padde 2 movement
 				ypos2<=ypos2+2;
 			end
 			else if(down2) begin

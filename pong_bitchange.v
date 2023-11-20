@@ -42,10 +42,10 @@ module vga_bitchange(
 
 	wire midline;
 	wire leftPaddle;
-	wire rightPaddle; //wait for when we make player 2 mode
-	reg[9:0] ballxvelocity, ballx, bally;
+	wire rightPaddle; 
+	reg[9:0] ballxvelocity, ballyvelocity, ballx, bally;
 	reg reset;
-	wire lp_collision;
+	wire lp_collision, rp_collision, bw_collision, tw_collision;
 
 
 	initial begin
@@ -77,17 +77,60 @@ always@(posedge clk, posedge rst)
 			ballx <=463;
 			bally <= 275;
 			ballxvelocity <= -2;
+			ballyvelocity <= 1;
+			
 		end
 		else if (clk) 
-		begin
-		  if (lp_collision)
-		      begin
-		          ballxvelocity <= ballxvelocity * -1;
-		          ballx <= 10'd178;
-		      end
-		  else
-		      ballx <= ballx + ballxvelocity;
-		end
+			begin
+				//left paddle collision event
+			  if (lp_collision)
+				  begin
+					  ballxvelocity <= ballxvelocity * -1;
+					  ballx <= 10'd178;
+				  end
+			  else
+					begin
+					  ballx <= ballx + ballxvelocity;
+					  bally <= bally + ballyvelocity;
+					end
+					
+			//right paddle collision event
+			  if (rp_collision)
+				  begin
+					  ballxvelocity <= ballxvelocity * -1;
+					  ballx <= 10'd750;
+				  end
+			  else
+					begin
+					  ballx <= ballx + ballxvelocity;
+					  bally <= bally + ballyvelocity;
+					end
+			
+			//bottom wall collision event
+			  if (bw_collision)
+				  begin
+					  ballyvelocity <= ballyvelocity * -1;
+					  bally <= 10'd504;
+				  end
+			  else
+					begin
+					  ballx <= ballx + ballxvelocity;
+					  bally <= bally + ballyvelocity;
+					end
+			
+			//top wall collision event
+			  if (tw_collision)
+				  begin
+					  ballyvelocity <= ballyvelocity * -1;
+					  bally <= 10'd46;
+				  end
+			  else
+					begin
+					  ballx <= ballx + ballxvelocity;
+					  bally <= bally + ballyvelocity;
+					end
+			end
+			
 	end
 		
 	always@(posedge clk, posedge rst) 
@@ -127,15 +170,28 @@ always@(posedge clk, posedge rst)
 	end	
 	
 	
-
+	//drawing objects on the screen
 	assign midline = ((hCount >= 10'd460) && (hCount <= 10'd466)) && ((vCount >= 10'd34) && (vCount <= 10'd516)) ? 1 : 0;
 
-	assign ball = ((hCount >= ballx-10) && (hCount <= ballx+10)) && ((vCount >= 10'd265) && (vCount <= 10'd285)) ? 1 : 0;
+	assign ball = ((hCount >= ballx-10) && (hCount <= ballx+10)) && ((vCount >= bally-10) && (vCount <= bally+10)) ? 1 : 0;
 
 	assign leftPaddle = ((hCount >= 10'd155) && (hCount <= 10'd165)) && ((vCount >= ypos1-30) && (vCount <= ypos1+30)) ? 1 : 0;
 	
 	assign rightPaddle =((hCount >= 10'd762) && (hCount <= 10'd772)) && ((vCount >= ypos2-30) && (vCount <= ypos2+30)) ? 1 : 0;
 	
+	
+	
+	//left paddle collision
 	assign lp_collision = ( (ballx- 10) <= 165) &&  (bally <=ypos1+30) && (bally >= ypos1 - 30) ? 1 : 0 ;
+	
+	//right paddle collision
+	assign rp_collision = ( (ballx+ 10) >= 762) &&  (bally <=ypos2+30) && (bally >= ypos2 - 30) ? 1 : 0 ;
+	
+	//bottom wall collision
+	assign bw_collision = ( bally + 10 >= 516) ? 1 : 0 ;
+	
+	//top wall collision
+	assign tw_collision = ( bally - 10 <= 34) ? 1 : 0 ;
+	
 	
 endmodule

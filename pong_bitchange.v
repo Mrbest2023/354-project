@@ -32,6 +32,7 @@ module vga_bitchange(
 	input rst,
 	output reg [11:0] rgb,
 	output reg [15:0] score
+	//output wire lp_collision
    );
 	reg [9:0] ypos1, ypos2, xpos1, xpos2;
 	parameter BLACK = 12'b0000_0000_0000;
@@ -45,6 +46,7 @@ module vga_bitchange(
 	wire rightPaddle; 
 	reg[9:0] ballxvelocity, ballyvelocity, ballx, bally;
 	reg reset;
+	reg collision_flag;
 	wire lp_collision, rp_collision, bw_collision, tw_collision;
 
 
@@ -76,6 +78,7 @@ always@(posedge clk, posedge rst)
 		begin 
 			ballx <=463;
 			bally <= 275;
+			collision_flag <= 0;
 			ballxvelocity <= -2;
 			ballyvelocity <= 1;
 			
@@ -83,49 +86,33 @@ always@(posedge clk, posedge rst)
 		else if (clk) 
 			begin
 				//left paddle collision event
-			  if (lp_collision)
+			  if (lp_collision && collision_flag==0)
 				  begin
+				      collision_flag <= 1;
 					  ballxvelocity <= ballxvelocity * -1;
 					  ballx <= 10'd178;
 				  end
-			  else
-					begin
-					  ballx <= ballx + ballxvelocity;
-					  bally <= bally + ballyvelocity;
-					end
-					
-			//right paddle collision event
-			  if (rp_collision)
+			  else if (rp_collision && collision_flag== 0)
 				  begin
+				      collision_flag <= 1;
 					  ballxvelocity <= ballxvelocity * -1;
 					  ballx <= 10'd750;
 				  end
-			  else
-					begin
-					  ballx <= ballx + ballxvelocity;
-					  bally <= bally + ballyvelocity;
-					end
-			
-			//bottom wall collision event
-			  if (bw_collision)
+			  else if (bw_collision && collision_flag== 0)
 				  begin
+				      collision_flag <= 1;
 					  ballyvelocity <= ballyvelocity * -1;
 					  bally <= 10'd504;
 				  end
-			  else
-					begin
-					  ballx <= ballx + ballxvelocity;
-					  bally <= bally + ballyvelocity;
-					end
-			
-			//top wall collision event
-			  if (tw_collision)
+			  else if (tw_collision && collision_flag== 0)
 				  begin
+				      collision_flag <= 1;
 					  ballyvelocity <= ballyvelocity * -1;
 					  bally <= 10'd46;
 				  end
 			  else
 					begin
+					  collision_flag <= 0;
 					  ballx <= ballx + ballxvelocity;
 					  bally <= bally + ballyvelocity;
 					end
@@ -182,10 +169,10 @@ always@(posedge clk, posedge rst)
 	
 	
 	//left paddle collision
-	assign lp_collision = ( (ballx- 10) <= 165) &&  (bally <=ypos1+30) && (bally >= ypos1 - 30) ? 1 : 0 ;
+	assign lp_collision = ( (ballx- 10) <= 165) &&  ((ballx- 10) >= 162) &&(bally <=ypos1+30) && (bally >= ypos1 - 30) ? 1 : 0 ;
 	
 	//right paddle collision
-	assign rp_collision = ( (ballx+ 10) >= 762) &&  (bally <=ypos2+30) && (bally >= ypos2 - 30) ? 1 : 0 ;
+	assign rp_collision = ( (ballx+ 10) >= 762) && ((ballx+ 10) <= 765) && (bally <=ypos2+30) && (bally >= ypos2 - 30) ? 1 : 0 ;
 	
 	//bottom wall collision
 	assign bw_collision = ( bally + 10 >= 516) ? 1 : 0 ;

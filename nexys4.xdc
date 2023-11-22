@@ -20,8 +20,8 @@ set_property PACKAGE_PIN E3 [get_ports ClkPort]
 set_property PACKAGE_PIN U9 [get_ports {Sw0}]					
 	set_property IOSTANDARD LVCMOS33 [get_ports {Sw0}]
 #Bank = 34, Pin name = IO_25_34,							Sch name = Sw1
-#set_property PACKAGE_PIN U8 [get_ports {Sw1}]					
-#	set_property IOSTANDARD LVCMOS33 [get_ports {Sw1}]
+set_property PACKAGE_PIN U8 [get_ports {Sw1}]					
+	set_property IOSTANDARD LVCMOS33 [get_ports {Sw1}]
 #Bank = 34, Pin name = IO_L23P_T3_34,						Sch name = Sw2
 #set_property PACKAGE_PIN R7 [get_ports {Sw2}]					
 #	set_property IOSTANDARD LVCMOS33 [get_ports {Sw2}]
@@ -69,8 +69,8 @@ set_property PACKAGE_PIN P4 [get_ports {Sw15}]
 
 # LEDs
 #Bank = 34, Pin name = IO_L24N_T3_34,						Sch name = LED0
-#set_property PACKAGE_PIN T8 [get_ports {Ld0}]					
-#	set_property IOSTANDARD LVCMOS33 [get_ports {Ld0}]
+set_property PACKAGE_PIN T8 [get_ports {Ld0}]					
+	set_property IOSTANDARD LVCMOS33 [get_ports {Ld0}]
 #Bank = 34, Pin name = IO_L21N_T3_DQS_34,					Sch name = LED1
 #set_property PACKAGE_PIN V9 [get_ports {Ld1}]					
 #	set_property IOSTANDARD LVCMOS33 [get_ports {Ld1}]

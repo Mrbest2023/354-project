@@ -30,16 +30,23 @@ module vga_bitchange(
 	input up2,
 	input [9:0] hCount, vCount,
 	input rst,
+	input P2_flag,
 	output reg [11:0] rgb,
 	output reg [15:0] score
-	//output wire lp_collision
    );
 	reg [9:0] ypos1, ypos2, xpos1, xpos2;
+	reg [2:0] state;
+	
 	parameter BLACK = 12'b0000_0000_0000;
 	parameter WHITE = 12'b1111_1111_1111;
 	parameter RED   = 12'b1111_0000_0000;
 	parameter GREEN = 12'b0000_1111_0000;
 	parameter BLUE = 12'b0000_0000_1111;
+	
+	localparam
+	    Q_INIT	=   3'b001,
+	    Q_P1	=   3'b010,
+	    Q_P2	=   3'b100; //was <= on last version
 
 	wire midline;
 	wire leftPaddle;
@@ -47,29 +54,75 @@ module vga_bitchange(
 	reg[9:0] ballxvelocity, ballyvelocity, ballx, bally;
 	reg reset;
 	reg collision_flag;
-	wire lp_collision, rp_collision, bw_collision, tw_collision;
+	reg [15:0] count;
+	wire lp_collision, rp_collision, bw_collision, tw_collision, rw_collision;
 
 
 	initial begin
 		score = 15'd0;
+		count = 15'd0;
 		reset = 1'b0;
+		state = Q_INIT;
 	end
 	
 	
-	always@ (*) 
-    	if (~bright)
-		rgb = BLACK; // force black if not bright
-	 else if (leftPaddle == 1)
-		rgb = GREEN;
-	 else if (rightPaddle == 1)
-	    rgb = GREEN;
-	else if ( ball == 1)
-		rgb = RED;
-	 else if (midline == 1)
-		rgb = WHITE; // white box
-	 else
-		rgb = BLUE; // background color
-	
+	always@ (*)
+		if (state == Q_INIT)
+			begin
+				if (~bright)
+					rgb = BLACK; // force black if not bright
+				else if (P2_flag)
+					   rgb = RED;
+				else
+				       rgb = BLUE;
+			end
+		else if (state == Q_P1)
+			begin
+				if (~bright)
+					rgb = BLACK; // force black if not bright
+				else if (leftPaddle == 1)
+					rgb = GREEN;
+				else if ( ball == 1)
+					rgb = RED;
+				else if (midline == 1)
+					rgb = WHITE; // white box
+				else
+					rgb = BLUE; // background color
+			end
+		else // P2 
+			begin
+				if (~bright)
+					rgb = BLACK; // force black if not bright
+				else if (leftPaddle == 1)
+					rgb = GREEN;
+				else if (rightPaddle == 1)
+					rgb = GREEN;
+				else if ( ball == 1)
+					rgb = RED;
+				else if (midline == 1)
+					rgb = WHITE; // white box
+				else
+					rgb = BLUE; // background color
+			end
+			
+		
+		
+//main state machine: INIT, P1 mode, P2 mode
+always @ (posedge clk)
+		begin
+			case(state)
+				Q_INIT:
+					if (count < 1000)
+						count <= count +1;
+					else
+					   begin
+					       if (P2_flag)
+						      state <= Q_P2;
+						   else
+						      state <= Q_P1;
+					   end
+		     endcase
+		 end
 
 //ball logic
 always@(posedge clk, posedge rst) 
@@ -92,7 +145,7 @@ always@(posedge clk, posedge rst)
 					  ballxvelocity <= ballxvelocity * -1;
 					  ballx <= 10'd178;
 				  end
-			  else if (rp_collision && collision_flag== 0)
+			  else if (rp_collision && collision_flag== 0 && state == Q_P2)
 				  begin
 				      collision_flag <= 1;
 					  ballxvelocity <= ballxvelocity * -1;
@@ -109,6 +162,28 @@ always@(posedge clk, posedge rst)
 				      collision_flag <= 1;
 					  ballyvelocity <= ballyvelocity * -1;
 					  bally <= 10'd46;
+				  end
+			  else if (rw_collision && collision_flag== 0 && state == Q_P1)
+				  begin
+				      collision_flag <= 1;
+					  ballxvelocity <= ballxvelocity * -1;
+					  ballx <= 10'd770;
+				  end
+			  else if (rw_collision && collision_flag== 0 && state == Q_P2)
+				  begin
+				      ballx <=463;
+			          bally <= 275;
+			          collision_flag <= 0;
+			          ballxvelocity <= -2;
+			          ballyvelocity <= 1;
+				  end
+			  else if (lw_collision && collision_flag== 0)
+				  begin
+				      ballx <=463;
+			          bally <= 275;
+			          collision_flag <= 0;
+			          ballxvelocity <= -2;
+			          ballyvelocity <= 1;
 				  end
 			  else
 					begin
@@ -179,6 +254,12 @@ always@(posedge clk, posedge rst)
 	
 	//top wall collision
 	assign tw_collision = ( bally - 10 <= 34) ? 1 : 0 ;
+	
+	//right wall collision
+	assign rw_collision =  (ballx+ 10) >= 784 ? 1 : 0;
+	
+	//left wall collision
+	assign lw_collision = ballx <= 34 ? 1 : 0;
 	
 	
 endmodule

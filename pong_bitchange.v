@@ -51,9 +51,12 @@ module vga_bitchange(
 	wire midline;
 	wire leftPaddle;
 	wire rightPaddle; 
+	wire first_tally, second_tally;
 	reg[9:0] ballxvelocity, ballyvelocity, ballx, bally;
 	reg reset;
 	reg collision_flag;
+	reg wait_flag;
+	reg [15:0] wait_count;
 	reg [15:0] count;
 	wire lp_collision, rp_collision, bw_collision, tw_collision, rw_collision;
 
@@ -72,9 +75,17 @@ module vga_bitchange(
 				if (~bright)
 					rgb = BLACK; // force black if not bright
 				else if (P2_flag)
+				    begin 
 					   rgb = RED;
+					   if (first_tally || second_tally)
+					      rgb = BLUE;
+					end
 				else
+				    begin
 				       rgb = BLUE;
+					    if (midline == 1)
+					      rgb = RED;
+				    end
 			end
 		else if (state == Q_P1)
 			begin
@@ -134,7 +145,9 @@ always@(posedge clk, posedge rst)
 			collision_flag <= 0;
 			ballxvelocity <= -2;
 			ballyvelocity <= 1;
-			
+			wait_flag <=0;
+			wait_count <=0;
+			//state <= Q_INIT;
 		end
 		else if (clk) 
 			begin
@@ -176,6 +189,7 @@ always@(posedge clk, posedge rst)
 			          collision_flag <= 0;
 			          ballxvelocity <= -2;
 			          ballyvelocity <= 1;
+			          wait_flag <=1;
 				  end
 			  else if (lw_collision && collision_flag== 0)
 				  begin
@@ -184,6 +198,22 @@ always@(posedge clk, posedge rst)
 			          collision_flag <= 0;
 			          ballxvelocity <= -2;
 			          ballyvelocity <= 1;
+			          wait_flag <=1;
+				  end
+			  else if (wait_flag)
+				  begin
+				      ballx <=463;
+			          bally <= 275;
+			          collision_flag <= 0;
+			          ballxvelocity <= -2;
+			          ballyvelocity <= 1;
+			          wait_flag <=1;
+			          wait_count <= wait_count + 1;
+			          if (wait_count == 100)
+			             begin
+			                 wait_flag <= 0;
+			                 wait_count <=0;
+			             end
 				  end
 			  else
 					begin
@@ -241,6 +271,10 @@ always@(posedge clk, posedge rst)
 	
 	assign rightPaddle =((hCount >= 10'd762) && (hCount <= 10'd772)) && ((vCount >= ypos2-30) && (vCount <= ypos2+30)) ? 1 : 0;
 	
+	assign first_tally = ((hCount >= 10'd420) && (hCount <= 10'd426)) && ((vCount >= 10'd34) && (vCount <= 10'd516)) ? 1 : 0;
+	
+	assign second_tally = ((hCount >= 10'd480) && (hCount <= 10'd486)) && ((vCount >= 10'd34) && (vCount <= 10'd516)) ? 1 : 0;
+
 	
 	
 	//left paddle collision
